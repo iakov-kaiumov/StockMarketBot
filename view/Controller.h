@@ -15,7 +15,7 @@
 
 class Controller {
 public:
-    Controller();
+    Controller(std::string key);
     void run();
 
 private:
@@ -27,7 +27,6 @@ private:
     StockMarket stockMarket;
     std::map<int64_t, std::string> idsWithUnopenedOrder;
     std::set<int64_t> idsWithUnclosedOrder;
-    const std::string key = "694941103:AAEPJCvKYIbj6pmjF16gIiShsaWU-z-t2jc";
 };
 
 #endif //TELEGRAMBOT_CONTROLLER_H

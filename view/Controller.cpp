@@ -1,6 +1,6 @@
 #include "Controller.h"
 
-Controller::Controller() {
+Controller::Controller(std::string key) {
     bot = new TgBot::Bot(key);
     dataBase.init();
     stockMarket.init(&dataBase);
