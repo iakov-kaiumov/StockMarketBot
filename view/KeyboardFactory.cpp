@@ -1,33 +1,33 @@
 #include "KeyboardFactory.h"
 #include "../Phrases.h"
 
-TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::mainKeyboard() {
+TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::mainKeyboard(StringResource& res, const std::string& locale) {
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);
     std::vector<TgBot::KeyboardButton::Ptr> row0;
     std::vector<TgBot::KeyboardButton::Ptr> row1;
 
     TgBot::KeyboardButton::Ptr button0(new TgBot::KeyboardButton);
-    button0->text = PHRASES::PRICE_BUTTON;
+    button0->text = res.get("PRICE_BUTTON", locale);
     row0.push_back(button0);
 
     TgBot::KeyboardButton::Ptr button1(new TgBot::KeyboardButton);
-    button1->text = PHRASES::GRAPH_BUTTON;
+    button1->text = res.get("GRAPH_BUTTON", locale);
     row0.push_back(button1);
 
     TgBot::KeyboardButton::Ptr button2(new TgBot::KeyboardButton);
-    button2->text = PHRASES::ORDERS_BUTTON;
+    button2->text = res.get("ORDERS_BUTTON", locale);
     row0.push_back(button2);
 
     TgBot::KeyboardButton::Ptr button3(new TgBot::KeyboardButton);
-    button3->text = PHRASES::NEW_BUTTON;
+    button3->text = res.get("NEW_BUTTON", locale);
     row1.push_back(button3);
 
     TgBot::KeyboardButton::Ptr button4(new TgBot::KeyboardButton);
-    button4->text = PHRASES::CLOSE_BUTTON;
+    button4->text = res.get("CLOSE_BUTTON", locale);
     row1.push_back(button4);
 
     TgBot::KeyboardButton::Ptr button5(new TgBot::KeyboardButton);
-    button5->text = PHRASES::INFO_BUTTON;
+    button5->text = res.get("INFO_BUTTON", locale);
     row1.push_back(button5);
 
     keyboard->keyboard.push_back(row0);
@@ -35,20 +35,20 @@ TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::mainKeyboard() {
     return keyboard;
 }
 
-TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::shareKeyboard() {
+TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::shareKeyboard(StringResource& res, const std::string& locale) {
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);
     std::vector<TgBot::KeyboardButton::Ptr> row0;
     std::vector<TgBot::KeyboardButton::Ptr> row1;
     TgBot::KeyboardButton::Ptr button0(new TgBot::KeyboardButton);
-    button0->text = PHRASES::K_BUTTON;
+    button0->text = res.get("K_BUTTON", locale);
     row0.push_back(button0);
 
     TgBot::KeyboardButton::Ptr button1(new TgBot::KeyboardButton);
-    button1->text = PHRASES::P_BUTTON;
+    button1->text = res.get("P_BUTTON", locale);
     row0.push_back(button1);
 
     TgBot::KeyboardButton::Ptr button2(new TgBot::KeyboardButton);
-    button2->text = PHRASES::CANCEL_BUTTON;
+    button2->text = res.get("CANCEL_BUTTON", locale);
     row1.push_back(button2);
 
     keyboard->keyboard.push_back(row0);
@@ -56,29 +56,29 @@ TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::shareKeyboard() {
     return keyboard;
 }
 
-TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::timeKeyboard() {
+TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::timeKeyboard(StringResource& res, const std::string& locale) {
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);
     std::vector<TgBot::KeyboardButton::Ptr> row0;
     std::vector<TgBot::KeyboardButton::Ptr> row1;
     std::vector<TgBot::KeyboardButton::Ptr> row2;
     TgBot::KeyboardButton::Ptr button0(new TgBot::KeyboardButton);
-    button0->text = PHRASES::TIME1_BUTTON;
+    button0->text = res.get("TIME1_BUTTON", locale);
     row0.push_back(button0);
 
     TgBot::KeyboardButton::Ptr button1(new TgBot::KeyboardButton);
-    button1->text = PHRASES::TIME2_BUTTON;
+    button1->text = res.get("TIME2_BUTTON", locale);
     row0.push_back(button1);
 
     TgBot::KeyboardButton::Ptr button2(new TgBot::KeyboardButton);
-    button2->text = PHRASES::TIME3_BUTTON;
+    button2->text = res.get("TIME3_BUTTON", locale);
     row1.push_back(button2);
 
     TgBot::KeyboardButton::Ptr button3(new TgBot::KeyboardButton);
-    button3->text = PHRASES::TIME4_BUTTON;
+    button3->text = res.get("TIME4_BUTTON", locale);
     row1.push_back(button3);
 
     TgBot::KeyboardButton::Ptr button4(new TgBot::KeyboardButton);
-    button4->text = PHRASES::CANCEL_BUTTON;
+    button4->text = res.get("CANCEL_BUTTON", locale);
     row2.push_back(button4);
 
     keyboard->keyboard.push_back(row0);
@@ -87,11 +87,11 @@ TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::timeKeyboard() {
     return keyboard;
 }
 
-TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::cancelKeyboard() {
+TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::cancelKeyboard(StringResource& res, const std::string& locale) {
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);
     std::vector<TgBot::KeyboardButton::Ptr> row0;
     TgBot::KeyboardButton::Ptr button0(new TgBot::KeyboardButton);
-    button0->text = PHRASES::CANCEL_BUTTON;
+    button0->text = res.get("CANCEL_BUTTON", locale);
     row0.push_back(button0);
     keyboard->keyboard.push_back(row0);
     return keyboard;

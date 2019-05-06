@@ -16,18 +16,18 @@ void StockMarket::init(MyDatabase *_database) {
     for (auto &share : shares) {
         lastPrices.insert(std::pair(share, database->getPricesSince(share, now - 3600 * 24)));
     }
-    int m = 100;
-    for (int i=0; i<m; i++) {
-        auto time = std::time(nullptr) - m * 24 * 7 + 24 * 7 * i;
-        for (auto &share : shares) {
-            Price p;
-            p.share = share;
-            p.time = time;
-            p.ask = p.bid = sin(i / 1000.0 * (int) share[0]) * (int) share[0] / 5.0 + 50.0;
-            lastPrices[share].push_back(p);
-            database->addNewPrice(p);
-        }
-    }
+//    int m = 100;
+//    for (int i=0; i<m; i++) {
+//        auto time = std::time(nullptr) - m * 24 * 7 + 24 * 7 * i;
+//        for (auto &share : shares) {
+//            Price p;
+//            p.share = share;
+//            p.time = time;
+//            p.ask = p.bid = sin(i / 1000.0 * (int) share[0]) * (int) share[0] / 5.0 + 50.0;
+//            lastPrices[share].push_back(p);
+//            database->addNewPrice(p);
+//        }
+//    }
 }
 
 void StockMarket::updatePrice(std::string share, double amount) {

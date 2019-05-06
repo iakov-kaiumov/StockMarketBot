@@ -15,18 +15,21 @@
 
 class Controller {
 public:
-    Controller(std::string key);
+    Controller(const std::string& key);
     void run();
-
 private:
     void onMessage(TgBot::Message::Ptr message);
     void onStartCommand(TgBot::Message::Ptr message);
-
+    std::string returnOrders(User *user);
+    std::string returnOrdersToClose(User *user);
     TgBot::Bot *bot;
     MyDatabase dataBase;
     StockMarket stockMarket;
+    StringResource res;
     std::map<int64_t, std::string> idsWithUnopenedOrder;
     std::set<int64_t> idsWithUnclosedOrder;
+
+    std::string loc = "en";
 };
 
 #endif //TELEGRAMBOT_CONTROLLER_H
