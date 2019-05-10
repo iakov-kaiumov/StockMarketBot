@@ -46,7 +46,8 @@ std::string MyDatabase::dumpPricesSince(std::string& share, time_t since) {
     std::string json = "\"" + share + "\": [";
     for (auto &p : prices) {
         auto s = storage.dump(p);
-        std::replace(s.begin(), s.end(), '\'', '\"');
+        std::replace(s.begin(), s.end(), '\'', ' ');
+        std::replace(s.begin(), s.end(), ' ', '\"');
         json += s + ", ";
     }
     json += "]";

@@ -1,20 +1,41 @@
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
+import datetime
+from peewee import *
+
+db = SqliteDatabase('db.sqlite')
+
+
+class BaseModel(Model):
+    class Meta:
+        database = db
+
+
+class Price(BaseModel):
+    dId = PrimaryKeyField()
+    share = CharField()
+    time = IntegerField()
+    ask = DoubleField()
+    bid = DoubleField()
 
 
 def main():
-    # load args
-    f = open('graphics/data.txt', 'r')
-    lines = f.readlines()
-    f.close()
     fig, ax = plt.subplots()
-    for i in range(0, len(lines), 3):
-        key = lines[i]
-        x = lines[i+1].split()
-        for j in range(len(x)):
-            x[j] = dates.epoch2num(int(x[j]))
-        y = list(map(float, lines[i+2].split()))
-        ax.plot(x, y, label=key)
+    since = sys.argv[1]
+    shares = []
+    for i in range(2, len(sys.argv)):
+        shares.append(sys.argv[i])
+
+    db.connect()
+    for share in shares:
+        prices = list(Price.select().where(Price.share == share).where(Price.time > since).order_by(Price.time))
+        x = []
+        y = []
+        for p in prices:
+            x.append(datetime.datetime.fromtimestamp(p.time))
+            y.append(p.ask)
+        ax.plot(x, y, label=share)
 
     date_formatter = dates.DateFormatter("%d-%m %H:%M")
     ax.xaxis.set_major_formatter(date_formatter)

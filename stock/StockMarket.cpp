@@ -49,27 +49,11 @@ void StockMarket::updatePrice(std::string& share, int amount) {
 }
 
 std::string StockMarket::getGraph(std::vector<std::string> keys, time_t since) {
-    std::ofstream file;
-    file.open("graphics/data.txt");
-    auto time = std::time(nullptr) - since;
+    auto now = std::time(nullptr);
+    std::string command = "python3 ../plot.py " + std::to_string(now - since);
     for (auto &key : keys) {
-        std::cout << database->dumpPricesSince(key, time) << std::endl;
-        file << key << std::endl;
-        for (auto &p : database->getPricesSince(key, time)) {
-            if (p.time > time) {
-                file << p.time << " ";
-            }
-        }
-        file << std::endl;
-        for (auto &p : database->getPricesSince(key, time)) {
-            if (p.time > time) {
-                file << p.ask << " ";
-            }
-        }
-        file << std::endl;
+        command += " " + key;
     }
-    file.close();
-    std::string command = "python ../plot.py";
     system(command.c_str());
     return "graphics/image.png";
 }
