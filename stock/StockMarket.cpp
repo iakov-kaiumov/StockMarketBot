@@ -5,36 +5,47 @@
 #include <cmath>
 #include "StockMarket.h"
 
-
-double StockMarket::getCurrentPrice(std::string share) {
-    return lastPrices[share].back().ask;
+int sign(int x) {
+    return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
 }
 
 void StockMarket::init(MyDatabase *_database) {
     database = _database;
-    auto now = std::time(nullptr);
     for (auto &share : shares) {
-        lastPrices.insert(std::pair(share, database->getPricesSince(share, now - 3600 * 24)));
+        try {
+            lastPrices.insert(std::pair(share, database->getLastPrice(share)));
+        } catch (std::out_of_range& e) {
+            database->initPrices(share);
+            lastPrices.insert(std::pair(share, database->getLastPrice(share)));
+        }
+        try {
+            sp.insert(std::pair(share, database->getSP(share)));
+        } catch (std::out_of_range& e) {
+            SP _sp {0, share, 0, 0, 1, 10};
+            database->insertSP(_sp);
+            sp.insert(std::pair(share, _sp));
+        }
     }
-//    int m = 100;
-//    for (int i=0; i<m; i++) {
-//        auto time = std::time(nullptr) - m * 24 * 7 + 24 * 7 * i;
-//        for (auto &share : shares) {
-//            Price p;
-//            p.share = share;
-//            p.time = time;
-//            p.ask = p.bid = sin(i / 1000.0 * (int) share[0]) * (int) share[0] / 5.0 + 50.0;
-//            lastPrices[share].push_back(p);
-//            database->addNewPrice(p);
-//        }
-//    }
 }
 
-void StockMarket::updatePrice(std::string share, double amount) {
-    double price = lastPrices[share].back().ask;
+Price StockMarket::getCurrentPrice(std::string& share) {
+    return lastPrices[share];
+}
+
+void StockMarket::updatePrice(std::string& share, int amount) {
     auto time = std::time(nullptr);
-    Price newPrice {0, share, time, price, price };
-    database->addNewPrice(newPrice);
+    Price lastPrice = lastPrices[share];
+    Price newPrice {0, share, time, 0, 0 };
+
+    sp[share].NASP += amount * sign(amount);
+    sp[share].NSP += amount * lastPrice.bid * sign(amount);
+    newPrice.ask = sp[share].NSP / sp[share].NASP;
+    newPrice.bid = lastPrice.bid + pow(sp[share].a * sp[share].NASP / sp[share].Q, 1);
+    std::cout << "LAST PRICE: " << lastPrice.toString() << std::endl;
+    std::cout << "NEW PRICE: " << newPrice.toString() << std::endl;
+    lastPrices[share] = newPrice;
+    database->insertSP(sp[share]);
+    database->insertPrice(newPrice);
 }
 
 std::string StockMarket::getGraph(std::vector<std::string> keys, time_t since) {
@@ -42,6 +53,7 @@ std::string StockMarket::getGraph(std::vector<std::string> keys, time_t since) {
     file.open("graphics/data.txt");
     auto time = std::time(nullptr) - since;
     for (auto &key : keys) {
+        std::cout << database->dumpPricesSince(key, time) << std::endl;
         file << key << std::endl;
         for (auto &p : database->getPricesSince(key, time)) {
             if (p.time > time) {

@@ -6,19 +6,29 @@
 #include "../sqlite_orm-master/include/sqlite_orm/sqlite_orm.h"
 #include "User.h"
 #include "../stock/Price.h"
+#include "../stock/SP.h"
 
 using namespace sqlite_orm;
 
 class MyDatabase {
 public:
+    void initPrices(std::string &share);
+
     void init();
     User *getUserById(int64_t id);
+    void insertUser(User &user);
+
+    void addNewOrder(Order& order);
+    void updateOrder(Order& order);
     std::vector<Order> getUserOrders(int64_t id, bool isOpen = true);
-    void addNewUser(User user);
-    void addNewOrder(Order order);
-    void updateOrder(Order order);
-    void addNewPrice(Price price);
-    std::vector<Price> getPricesSince(std::string share, time_t since);
+
+    void insertPrice(Price& price);
+    std::vector<Price> getPricesSince(std::string& share, time_t since);
+    std::string dumpPricesSince(std::string& share, time_t since);
+    Price getLastPrice(std::string& share);
+
+    void insertSP(SP &sp);
+    SP getSP(std::string &share);
 private:
     static inline auto storage = make_storage("db.sqlite",
                                 make_table("users",
@@ -40,7 +50,12 @@ private:
                                          make_column("name", &Price::share),
                                          make_column("ask", &Price::ask),
                                          make_column("bid", &Price::bid),
-                                         make_column("time", &Price::time)));
+                                         make_column("time", &Price::time)),
+                                make_table("SP",
+                                         make_column("dId", &SP::dId, primary_key()),
+                                         make_column("name", &SP::share),
+                                         make_column("NASP", &SP::NASP),
+                                         make_column("NSP", &SP::NSP)));
 };
 
 

@@ -5,7 +5,7 @@ struct Order {
     int dId;
     int64_t id;
     std::string share;
-    double amount;
+    int amount;
     double openPrice;
     double closePrice;
     bool isOpen;

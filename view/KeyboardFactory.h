@@ -2,7 +2,7 @@
 #define TELEGRAMBOT_KEYBOARDFACTORY_H
 
 #include <tgbot/tgbot.h>
-#include "../StringResource.h"
+#include "../resource-manager/StringResource.h"
 
 class KeyboardFactory {
 public:

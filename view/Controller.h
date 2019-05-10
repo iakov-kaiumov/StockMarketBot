@@ -10,7 +10,6 @@
 #include "../stock/Order.h"
 #include "../stock/StockMarket.h"
 #include "../view/KeyboardFactory.h"
-#include "../Phrases.h"
 
 
 class Controller {

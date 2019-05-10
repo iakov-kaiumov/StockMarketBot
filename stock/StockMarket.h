@@ -10,14 +10,15 @@
 
 class StockMarket {
 public:
-    double getCurrentPrice(std::string share);
+    Price getCurrentPrice(std::string& share);
     void init(MyDatabase *_database);
-    void updatePrice(std::string share, double amount);
+    void updatePrice(std::string& share, int amount);
     std::string getGraph(std::vector<std::string> keys, time_t since);
-    inline static std::string shares[] = {"K", "P"};
+    inline static std::vector<std::string> shares = {"K", "P"};
 private:
     MyDatabase *database;
-    std::map<std::string, std::vector<Price>> lastPrices;
+    std::map<std::string, Price> lastPrices;
+    std::map<std::string, SP> sp;
 };
 
 #endif //TELEGRAMBOT_STOCKMARKET_H

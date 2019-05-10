@@ -15,61 +15,64 @@ void Controller::onStartCommand(TgBot::Message::Ptr message) {
     user.id = message->chat->id;
     user.firstName = message->chat->firstName;
     user.lastName = message->chat->lastName;
-    user.money = 100;
-    dataBase.addNewUser(user);
-    bot->getApi().sendMessage(message->chat->id, PHRASES::HELLO_TEXT, false, 0, KeyboardFactory::mainKeyboard(res, loc));
+    user.money = 1000;
+    dataBase.insertUser(user);
+    bot->getApi().sendMessage(message->chat->id, res.get("HELLO_TEXT", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
 
     std::cout << "New user : " << user.id << std::endl;
 }
 
 void Controller::onMessage(TgBot::Message::Ptr message) {
-    std::vector<std::string> keys;
-    keys.emplace_back("K");
-    keys.emplace_back("P");
 
-    printf("User wrote %s\n", message->text.c_str());
+    printf("User wrote:'%s'\n", message->text.c_str());
+    // Check whether the user is in the database or not
+    auto user = dataBase.getUserById(message->chat->id);
+    if (user == nullptr) {
+        bot->getApi().sendMessage(message->chat->id, res.get("RESTART_LABEL", loc));
+        return;
+    }
     auto text = message->text;
     if (res.equal("PRICE_BUTTON", text)) {
-        bot->getApi().sendMessage(message->chat->id,
-                                 "Current prices are: \n K: " + std::to_string(stockMarket.getCurrentPrice("K")) + " $\n"
-                                                                                                                   " P: " + std::to_string(stockMarket.getCurrentPrice("P")) + " $");
+        std::string msg = res.get("PRICE_LABEL", loc) + "\n";
+        int i = 1;
+        for (auto &share : StockMarket::shares) {
+            msg += std::to_string(i) + ". " +stockMarket.getCurrentPrice(share).toString() + "\n";
+            i++;
+        }
+        bot->getApi().sendMessage(message->chat->id, msg);
     }
     if (res.equal("GRAPH_BUTTON", text)) {
-        bot->getApi().sendMessage(message->chat->id, "Choose time interval", false, 0, KeyboardFactory::timeKeyboard(res, loc));
+        bot->getApi().sendMessage(message->chat->id, res.get("TIME_LABEL", loc),
+                false, 0, KeyboardFactory::timeKeyboard(res, loc));
     } else
     if (res.equal("TIME1_BUTTON", text)) {
         time_t since = 3600;
         bot->getApi().sendPhoto(message->chat->id,
-                               TgBot::InputFile::fromFile(stockMarket.getGraph(keys, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
+                               TgBot::InputFile::fromFile(stockMarket.getGraph(StockMarket::shares, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
     } else
     if (res.equal("TIME2_BUTTON", text)) {
         time_t since = 24 * 3600;
         bot->getApi().sendPhoto(message->chat->id,
-                               TgBot::InputFile::fromFile(stockMarket.getGraph(keys, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
+                               TgBot::InputFile::fromFile(stockMarket.getGraph(StockMarket::shares, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
     } else
     if (res.equal("TIME3_BUTTON", text)) {
         time_t since = 7 * 24 * 3600;
         bot->getApi().sendPhoto(message->chat->id,
-                               TgBot::InputFile::fromFile(stockMarket.getGraph(keys, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
+                               TgBot::InputFile::fromFile(stockMarket.getGraph(StockMarket::shares, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
     } else
     if (res.equal("TIME4_BUTTON", text)) {
         time_t since = 30 * 24 * 3600;
         bot->getApi().sendPhoto(message->chat->id,
-                               TgBot::InputFile::fromFile(stockMarket.getGraph(keys, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
+                               TgBot::InputFile::fromFile(stockMarket.getGraph(StockMarket::shares, since), "image/jpeg"), "", 0, KeyboardFactory::mainKeyboard(res, loc));
     } else
     if (res.equal("INFO_BUTTON", text)) {
         bot->getApi().sendMessage(message->chat->id, "Information");
     } else
     if (res.equal("ORDERS_BUTTON", text)) {
-        auto user = dataBase.getUserById(message->chat->id);
-        if (user == nullptr)
-            return;
         bot->getApi().sendMessage(message->chat->id, returnOrders(user));
     } else
     if (res.equal("CLOSE_BUTTON", text)) {
         auto user = dataBase.getUserById(message->chat->id);
-        if (user == nullptr)
-            return;
         bot->getApi().sendMessage(message->chat->id, returnOrdersToClose(user),
                 false, 0, KeyboardFactory::cancelKeyboard(res, loc));
     } else
@@ -83,23 +86,21 @@ void Controller::onMessage(TgBot::Message::Ptr message) {
     if (res.equal("CANCEL_BUTTON", text)) {
         idsWithUnopenedOrder.erase(message->chat->id);
         idsWithUnclosedOrder.erase(message->chat->id);
-        bot->getApi().sendMessage(message->chat->id, "Cancel", false, 0, KeyboardFactory::mainKeyboard(res, loc));
+        bot->getApi().sendMessage(message->chat->id, res.get("CANCEL_BUTTON", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
     } else
     if (idsWithUnopenedOrder.count(message->chat->id) == 1) {
         if (is_number(message->text)) {
             std::string share = idsWithUnopenedOrder[message->chat->id];
-            double amount = std::stoi(message->text);
-            double currentPrice =  stockMarket.getCurrentPrice(share);
-            auto user = dataBase.getUserById(message->chat->id);
-            if (user == nullptr)
-                return;
-            if (user->money < currentPrice * amount) {
-                bot->getApi().sendMessage(message->chat->id, "Not enough money!", false, 0, KeyboardFactory::mainKeyboard(res, loc));
+            int amount = std::stoi(message->text);
+            double bid =  stockMarket.getCurrentPrice(share).bid;
+            if (user->money < bid * amount) {
+                bot->getApi().sendMessage(message->chat->id, res.get("NO_MONEY", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
             } else {
-                user->money -= currentPrice * amount;
-                dataBase.addNewOrder({ 0, user->id, share, amount, currentPrice, 0, true });
+                user->money -= bid * amount;
+                Order o { 0, user->id, share, amount, bid, 0, true };
+                dataBase.addNewOrder(o);
                 stockMarket.updatePrice(share, amount);
-                bot->getApi().sendMessage(message->chat->id, "Successfully!", false, 0, KeyboardFactory::mainKeyboard(res, loc));
+                bot->getApi().sendMessage(message->chat->id, res.get("SUCCESS", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
             }
         } else {
             bot->getApi().sendMessage(message->chat->id, "", false, 0, KeyboardFactory::mainKeyboard(res, loc));
@@ -109,35 +110,33 @@ void Controller::onMessage(TgBot::Message::Ptr message) {
     if (idsWithUnclosedOrder.count(message->chat->id) == 1) {
         if (is_number(message->text)) {
             int index = std::stoi(message->text) - 1;
-            auto user = dataBase.getUserById(message->chat->id);
-            if (user == nullptr)
-                return;
             auto orders = dataBase.getUserOrders(user->id);
             if (index >= orders.size() || index < 0) {
                 bot->getApi().sendMessage(message->chat->id, "No such order", false, 0, KeyboardFactory::mainKeyboard(res, loc));
                 return;
             }
             Order order = orders[index];
-            double currentPrice = stockMarket.getCurrentPrice(order.share);
-            user->money += order.amount * currentPrice;
+            double ask = stockMarket.getCurrentPrice(order.share).ask;
+            user->money += order.amount * ask;
             order.isOpen = false;
-            order.closePrice = currentPrice;
+            order.closePrice = ask;
             stockMarket.updatePrice(order.share, order.amount);
             dataBase.updateOrder(order);
-            bot->getApi().sendMessage(message->chat->id, "Successfully!", false, 0, KeyboardFactory::mainKeyboard(res, loc));
+            dataBase.insertUser(*user);
+            bot->getApi().sendMessage(message->chat->id, res.get("SUCCESS", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
         } else {
-            bot->getApi().sendMessage(message->chat->id, "Wrong input", false, 0, KeyboardFactory::mainKeyboard(res, loc));
+            bot->getApi().sendMessage(message->chat->id, res.get("WRONG_INPUT", loc), false, 0, KeyboardFactory::mainKeyboard(res, loc));
         }
         idsWithUnclosedOrder.erase(message->chat->id);
     }
 }
 
 void Controller::run() {
-    bot->getEvents().onCommand("start", [this](TgBot::Message::Ptr message) {
+    bot->getEvents().onCommand("start", [this] (TgBot::Message::Ptr message) {
         onStartCommand(message);
     });
 
-    bot->getEvents().onNonCommandMessage([this](TgBot::Message::Ptr message) {
+    bot->getEvents().onNonCommandMessage([this] (TgBot::Message::Ptr message) {
         onMessage(message);
     });
 
@@ -145,43 +144,42 @@ void Controller::run() {
         printf("Bot username: %s\n", bot->getApi().getMe()->username.c_str());
         TgBot::TgLongPoll longPoll(*bot);
         while (true) {
-            printf("Long poll started\n");
             longPoll.start();
         }
     } catch (TgBot::TgException& e) {
-        printf("error: %s\n", e.what());
+        printf("Error: %s\n", e.what());
     }
 }
 
 std::string Controller::returnOrdersToClose(User *user) {
-    std::string text = "Enter the number of share to close\n";
+    std::string text = res.get("CLOSE_LABEL_1", loc);
     auto orders = dataBase.getUserOrders(user->id);
     if (orders.empty()) {
-        text = "No open orders";
+        text = res.get("EMPTY_ORDERS", loc);
     } else {
         idsWithUnclosedOrder.insert(user->id);
         for (int i=0; i<orders.size(); i++) {
             Order order = orders[i];
-            double profit = (stockMarket.getCurrentPrice(order.share) - order.openPrice) * order.amount;
-            text += std::to_string(i + 1) + ". " + order.share +
-                    " share with current profit " + std::to_string(profit) + "$\n";
+            double profit = (stockMarket.getCurrentPrice(order.share).ask - order.openPrice) * order.amount;
+            text += std::to_string(i + 1) + ". " + order.share + res.get("SHARE_INFO", loc)
+                    + std::to_string(profit) + "$\n";
         }
     }
     return text;
 }
 
 std::string Controller::returnOrders(User *user) {
-    std::string text = "Available money: " + std::to_string(user->money) + "$\n";
+    std::string text = res.get("MONEY_INFO", loc) + std::to_string(user->money) + "$\n";
     auto orders = dataBase.getUserOrders(user->id);
     if (orders.empty()) {
-        text += "No open orders";
+        text += res.get("EMPTY_ORDERS", loc);
     } else {
         text += "Orders: \n";
         for (int i=0; i<orders.size(); i++) {
             Order order = orders[i];
-            double profit = (stockMarket.getCurrentPrice(order.share) - order.openPrice) * order.amount;
-            text += std::to_string(i + 1) + ". " + order.share +
-                    " share with current profit " + std::to_string(profit) + "$\n";
+            double profit = (stockMarket.getCurrentPrice(order.share).ask - order.openPrice) * order.amount;
+            text += std::to_string(i + 1) + ". " + order.share + res.get("SHARE_INFO", loc)
+                    + std::to_string(profit) + "$\n";
         }
     }
     return text;

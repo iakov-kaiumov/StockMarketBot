@@ -1,5 +1,5 @@
 #include "KeyboardFactory.h"
-#include "../Phrases.h"
+
 
 TgBot::ReplyKeyboardMarkup::Ptr KeyboardFactory::mainKeyboard(StringResource& res, const std::string& locale) {
     TgBot::ReplyKeyboardMarkup::Ptr keyboard(new TgBot::ReplyKeyboardMarkup);

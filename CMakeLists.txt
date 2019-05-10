@@ -21,7 +21,7 @@ add_executable(TelegramBot
         main.cpp
         database/MyDatabase.cpp database/MyDatabase.h database/User.h
         stock/StockMarket.cpp stock/StockMarket.h stock/Order.h
-        view/KeyboardFactory.cpp view/KeyboardFactory.h Phrases.h view/Controller.cpp view/Controller.h stock/Price.h StringResource.cpp StringResource.h)
+        view/KeyboardFactory.cpp view/KeyboardFactory.h view/Controller.cpp view/Controller.h stock/Price.h resource-manager/StringResource.cpp resource-manager/StringResource.h stock/SP.h)
 
 target_link_libraries(TelegramBot /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT}
         ${OPENSSL_LIBRARIES}
