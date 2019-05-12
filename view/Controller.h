@@ -19,8 +19,8 @@ public:
 private:
     void onMessage(TgBot::Message::Ptr message);
     void onStartCommand(TgBot::Message::Ptr message);
-    std::string returnOrders(User *user);
-    std::string returnOrdersToClose(User *user);
+    std::string returnOrders(User& user, std::string& loc);
+    std::string returnOrdersToClose(User& user, std::string& loc);
     TgBot::Bot *bot;
     MyDatabase dataBase;
     StockMarket stockMarket;
@@ -28,7 +28,7 @@ private:
     std::map<int64_t, std::string> idsWithUnopenedOrder;
     std::set<int64_t> idsWithUnclosedOrder;
 
-    std::string loc = "en";
+    const std::string imageType = "image/jpeg";
 };
 
 #endif //TELEGRAMBOT_CONTROLLER_H

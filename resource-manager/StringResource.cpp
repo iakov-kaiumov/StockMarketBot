@@ -21,7 +21,7 @@ std::string StringResource::get(const std::string& key, const std::string& local
     if (m.count(locale) == 0)
         loc = "en";
     if (m[loc].count(key) == 0)
-        throw runtime_error("StringResources: invalid key");
+        throw length_error("StringResources: invalid key: " + key);
     return m[loc][key];
 }
 

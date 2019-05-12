@@ -17,14 +17,18 @@ endif()
 
 include_directories(rapidxml-1.13)
 
+add_subdirectory(fmt-5.3.0)
+
 add_executable(TelegramBot
         main.cpp
         database/MyDatabase.cpp database/MyDatabase.h database/User.h
         stock/StockMarket.cpp stock/StockMarket.h stock/Order.h
-        view/KeyboardFactory.cpp view/KeyboardFactory.h view/Controller.cpp view/Controller.h stock/Price.h resource-manager/StringResource.cpp resource-manager/StringResource.h stock/SP.h)
+        view/KeyboardFactory.cpp view/KeyboardFactory.h view/Controller.cpp view/Controller.h stock/Price.h
+        resource-manager/StringResource.cpp resource-manager/StringResource.h stock/Stock.h)
 
 target_link_libraries(TelegramBot /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT}
         ${OPENSSL_LIBRARIES}
         ${Boost_LIBRARIES}
         ${CURL_LIBRARIES}
-        sqlite3)
+        sqlite3
+        fmt::fmt)

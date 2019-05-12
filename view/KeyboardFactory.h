@@ -10,6 +10,10 @@ public:
     static TgBot::ReplyKeyboardMarkup::Ptr shareKeyboard(StringResource& res, const std::string& locale);
     static TgBot::ReplyKeyboardMarkup::Ptr timeKeyboard(StringResource& res, const std::string& locale);
     static TgBot::ReplyKeyboardMarkup::Ptr cancelKeyboard(StringResource& res, const std::string& locale);
+
+    static TgBot::ReplyKeyboardMarkup::Ptr settingsKeyboard(StringResource& res, const std::string& locale);
+    static TgBot::ReplyKeyboardMarkup::Ptr graphViewKeyboard(StringResource& res, const std::string& locale);
+    static TgBot::ReplyKeyboardMarkup::Ptr langKeyboard(StringResource& res, const std::string& locale);
 };
 
 

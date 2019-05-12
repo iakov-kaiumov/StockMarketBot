@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <string>
+#include <fmt/core.h>
 
 class Price {
 public:
@@ -12,7 +13,7 @@ public:
     double ask;
     double bid;
     std::string toString() {
-        return share + ": " + std::to_string(bid) + "$ - " + std::to_string(ask) + "$ ";
+        return share + ": " + fmt::format("{:.2f}", bid) + "$ - " + fmt::format("{:.2f}", ask) + "$ ";
     }
 };
 
