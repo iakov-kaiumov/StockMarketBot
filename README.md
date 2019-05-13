@@ -11,4 +11,4 @@ Our implementation of stock market has following features:
 - Candlesticks and lines plots
 
 ## How to join?
-Join our market by [link](t.me/StockMarketAnalysisByK_bot)
+Join our market by link (t.me/StockMarketAnalysisByK_bot)
